@@ -166,8 +166,8 @@ class RealTradingManager {
             }
 
             try {
-                // Generate and execute random trade
-                const tradeParams = this.generateRandomTrade();
+                // Generate and execute random trade (now with balance checking)
+                const tradeParams = await this.generateRandomTrade();
                 const result = await this.executeTrade(tradeParams);
 
                 // Call the callback with trade result
