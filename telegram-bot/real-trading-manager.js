@@ -20,7 +20,7 @@ class RealTradingManager {
     }
 
     // Generate random trade parameters for real trading
-    generateRandomTrade() {
+    async generateRandomTrade() {
         // 70% buy, 30% sell
         const isBuy = Math.random() < 0.7;
         
@@ -37,15 +37,46 @@ class RealTradingManager {
                 amount: solAmount
             };
         } else {
-            // For sells, we'll attempt with a random percentage of holdings
-            // The actual amount will be determined when we check the balance
-            const sellPercentage = 0.1 + Math.random() * 0.4; // 10-50%
-            return {
-                type: 'SELL',
-                walletId,
-                sellPercentage: sellPercentage
-            };
+            // For sells, check if wallet actually has tokens first
+            try {
+                const tokenBalance = await this.getTokenBalance(this.currentToken, walletId);
+                
+                if (tokenBalance <= 0) {
+                    // If no tokens to sell, make it a buy instead
+                    console.log(`⚠️ Wallet ${walletId} has no tokens (${tokenBalance}), switching to BUY`);
+                    const solAmount = 0.01 + Math.random() * 0.04;
+                    return {
+                        type: 'BUY',
+                        walletId,
+                        amount: solAmount
+                    };
+                }
+                
+                // Sell 10-50% of token balance
+                const sellPercentage = 0.1 + Math.random() * 0.4;
+                const tokenAmount = tokenBalance * sellPercentage;
+                
+                return {
+                    type: 'SELL',
+                    walletId,
+                    amount: tokenAmount
+                };
+            } catch (error) {
+                console.error(`❌ Error checking token balance for wallet ${walletId}:`, error);
+                // Fallback to buy if we can't check balance
+                const solAmount = 0.01 + Math.random() * 0.04;
+                return {
+                    type: 'BUY',
+                    walletId,
+                    amount: solAmount
+                };
+            }
         }
+    }
+
+    // Get actual token balance for a wallet
+    async getTokenBalance(tokenMint, walletId) {
+        return await this.raydiumManager.getTokenBalance(tokenMint, walletId);
     }
 
     // Execute a real trade using Raydium
