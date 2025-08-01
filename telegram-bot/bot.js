@@ -74,8 +74,8 @@ Available Commands:
                     { text: '🏊 Create Pool', callback_data: 'create_pool' }
                 ],
                 [
-                    { text: '⏸️ Stop Trading', callback_data: 'stop_trading' },
-                    { text: '🔴 Rugpull', callback_data: 'rugpull' }
+                    { text: '📈 Start Trading', callback_data: 'start_trading' },
+                    { text: '⏸️ Stop Trading', callback_data: 'stop_trading' }
                 ],
                 [
                     { text: '📊 Bot Status', callback_data: 'show_status' }
