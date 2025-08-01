@@ -3,6 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const { Connection, PublicKey, clusterApiUrl } = require('@solana/web3.js');
 const WalletManager = require('./wallet-manager');
 const TokenManager = require('./token-manager');
+const TradingSimulator = require('./trading-simulator');
 
 // Initialize Telegram Bot
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
@@ -15,6 +16,9 @@ const walletManager = new WalletManager(connection);
 
 // Initialize Token Manager
 const tokenManager = new TokenManager(connection, walletManager);
+
+// Initialize Trading Simulator
+const tradingSimulator = new TradingSimulator(walletManager, tokenManager);
 
 // Bot state management
 const botState = {
@@ -36,14 +40,14 @@ Available Commands:
 📋 /help - Show all commands
 💰 /wallets - Show wallet balances
 🪂 /airdrop [wallet_number] - Request devnet SOL
-🚀 /launch - Launch new meme coin ✅ NEW
+🚀 /launch - Launch new meme coin
+📈 /start_trading - Start automated trading ✅ NEW
+⏸️ /stop_trading - Stop automated trading ✅ NEW
+🔴 /rugpull - Sell all holdings ✅ NEW
 📊 /status - Show current operations
-⏸️ /pause - Pause automated buying (Step 4)
-🔴 /rugpull - Sell all holdings (Step 4)
 
 ⚠️ *Educational Use Only* - Devnet Testing
-
-*Step 3 Complete:* Token creation ready!
+🎯 *Step 4 Complete:* Automated trading simulation ready!
     `;
     
     bot.sendMessage(chatId, welcomeMessage, { 
@@ -55,6 +59,11 @@ Available Commands:
                     { text: '🚀 Launch Coin', callback_data: 'launch_token' }
                 ],
                 [
+                    { text: '📈 Start Trading', callback_data: 'start_trading' },
+                    { text: '⏸️ Stop Trading', callback_data: 'stop_trading' }
+                ],
+                [
+                    { text: '🔴 Rugpull', callback_data: 'rugpull' },
                     { text: '📊 Bot Status', callback_data: 'show_status' }
                 ]
             ]
@@ -74,17 +83,24 @@ bot.onText(/\/help/, (msg) => {
 - /wallets - View all wallet balances
 - /airdrop [1-5] - Request devnet SOL for testing
 
-*Step 3: Token Launch* ✅ COMPLETE
+*Step 3: Token Launch* ✅
 - /launch - Create new SPL token
 - Interactive token creation process
-- Mint to Wallet 1 automatically
 
-*Step 4: Trading Operations* (Coming Next)
-- Automated buying with random intervals
-- /pause - Stop buying
-- /rugpull - Emergency sell
+*Step 4: Automated Trading* ✅ COMPLETE
+- /start_trading - Begin automated trading simulation
+- /stop_trading - Stop trading operations  
+- /rugpull - Sell all tokens and recover SOL
 
-*Current Status:* Step 3 Complete - Ready to create tokens!
+*Trading Features:*
+- 70% buy / 30% sell ratio
+- Random delays (45-120 seconds)
+- Cycles through wallets 2-5
+- Real-time trade logging
+- Balance tracking
+
+*Current Status:* Step 4 Complete - Ready for automated trading!
+*Next:* Step 5 will connect to real Raydium pools
     `;
     
     bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
@@ -97,6 +113,15 @@ bot.onText(/\/status/, (msg) => {
 
 async function showStatus(chatId) {
     const createdTokens = tokenManager.getAllTokens();
+    const tradingStatus = tradingSimulator.getTradingStatus();
+    
+    let tradingInfo = '❌ Not active';
+    if (tradingStatus.isTrading) {
+        const stats = tradingStatus.stats;
+        const runtime = stats.startTime ? Math.floor((Date.now() - stats.startTime.getTime()) / 60000) : 0;
+        tradingInfo = `✅ Active (${runtime}m) - ${stats.totalTrades} trades`;
+    }
+    
     const statusMessage = `
 📊 *Bot Status*
 
@@ -104,14 +129,229 @@ async function showStatus(chatId) {
 🌐 Network: ${process.env.SOLANA_NETWORK || 'devnet'} ✅
 💰 Wallets: ${walletManager.getAllWallets().length}/5 configured ✅
 🪙 Tokens Created: ${createdTokens.length}
-🚀 Raydium: Not integrated (Step 4 pending)
-📈 Active Operations: ${botState.activeOperations.size}
+📈 Trading: ${tradingInfo}
+🎯 Mode: Simulation (Step 4)
 
-*Current Step:* Step 3 Complete - Token creation ready
-*Next Step:* Raydium integration and automated trading (Step 4)
+*Current Step:* Step 4 Complete - Automated trading simulation
+*Next Step:* Step 5 - Real Raydium pool integration
     `;
     
     bot.sendMessage(chatId, statusMessage, { parse_mode: 'Markdown' });
+}
+
+// Start Trading Command
+bot.onText(/\/start_trading/, (msg) => {
+    const chatId = msg.chat.id;
+    startTradingCommand(chatId);
+});
+
+function startTradingCommand(chatId) {
+    const createdTokens = tokenManager.getAllTokens();
+    
+    if (createdTokens.length === 0) {
+        bot.sendMessage(chatId, `
+❌ *No Tokens Found*
+
+You need to create a token first before starting trading.
+
+Use /launch to create your first token!
+        `, { parse_mode: 'Markdown' });
+        return;
+    }
+
+    if (tradingSimulator.getTradingStatus().isTrading) {
+        bot.sendMessage(chatId, `
+⚠️ *Trading Already Active*
+
+Trading is already running. Use /stop_trading to stop it first.
+        `, { parse_mode: 'Markdown' });
+        return;
+    }
+
+    // If only one token, start trading immediately
+    if (createdTokens.length === 1) {
+        startTradingForToken(chatId, createdTokens[0].mintAddress);
+    } else {
+        // Multiple tokens - let user choose
+        const tokenButtons = createdTokens.map(token => [{
+            text: `🪙 ${token.name} (${token.symbol})`,
+            callback_data: `trade_token_${token.mintAddress}`
+        }]);
+        
+        bot.sendMessage(chatId, `
+📈 *Select Token for Trading*
+
+Choose which token you want to trade:
+        `, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    ...tokenButtons,
+                    [{ text: '❌ Cancel', callback_data: 'cancel_trading' }]
+                ]
+            }
+        });
+    }
+}
+
+function startTradingForToken(chatId, tokenMint) {
+    const tokenInfo = tokenManager.getToken(tokenMint);
+    if (!tokenInfo) {
+        bot.sendMessage(chatId, '❌ Token not found');
+        return;
+    }
+
+    // Start trading with callback for trade notifications
+    const result = tradingSimulator.startTrading(tokenMint, (tradeResult) => {
+        // Send trade notification to Telegram
+        const tradeMessage = tradingSimulator.formatTradeForTelegram(tradeResult);
+        bot.sendMessage(chatId, tradeMessage, { parse_mode: 'Markdown' });
+    });
+
+    if (result.success) {
+        bot.sendMessage(chatId, `
+🚀 *Automated Trading Started!*
+
+🪙 Token: ${tokenInfo.name} (${tokenInfo.symbol})
+🎯 Strategy: 70% Buy / 30% Sell
+⏰ Intervals: 45-120 seconds (random)
+💰 Wallets: 2, 3, 4, 5 (cycling)
+🎮 Mode: Simulation
+
+First trade will execute in 5-15 seconds...
+        `, { 
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: '⏸️ Stop Trading', callback_data: 'stop_trading' },
+                        { text: '📊 View Balances', callback_data: 'view_sim_balances' }
+                    ]
+                ]
+            }
+        });
+    } else {
+        bot.sendMessage(chatId, `❌ Failed to start trading: ${result.error}`);
+    }
+}
+
+// Stop Trading Command
+bot.onText(/\/stop_trading/, (msg) => {
+    const chatId = msg.chat.id;
+    stopTradingCommand(chatId);
+});
+
+function stopTradingCommand(chatId) {
+    const result = tradingSimulator.stopTrading();
+    
+    if (result.success) {
+        const stats = result.stats;
+        const runtime = stats.startTime ? Math.floor((Date.now() - stats.startTime.getTime()) / 60000) : 0;
+        
+        bot.sendMessage(chatId, `
+⏸️ *Trading Stopped*
+
+📊 *Session Statistics:*
+⏰ Runtime: ${runtime} minutes
+📈 Total Trades: ${stats.totalTrades}
+🟢 Buy Trades: ${stats.buyTrades}
+🔴 Sell Trades: ${stats.sellTrades}
+💹 Success Rate: 100% (simulated)
+
+All trading operations have been halted.
+        `, { parse_mode: 'Markdown' });
+    } else {
+        bot.sendMessage(chatId, `❌ ${result.error}`);
+    }
+}
+
+// Rugpull Command
+bot.onText(/\/rugpull/, (msg) => {
+    const chatId = msg.chat.id;
+    rugpullCommand(chatId);
+});
+
+function rugpullCommand(chatId) {
+    const createdTokens = tokenManager.getAllTokens();
+    
+    if (createdTokens.length === 0) {
+        bot.sendMessage(chatId, `
+❌ *No Tokens Found*
+
+You need to create a token first before rugpulling.
+
+Use /launch to create your first token!
+        `, { parse_mode: 'Markdown' });
+        return;
+    }
+
+    // If trading is active, stop it first
+    if (tradingSimulator.getTradingStatus().isTrading) {
+        tradingSimulator.stopTrading();
+    }
+
+    // If only one token, rugpull immediately
+    if (createdTokens.length === 1) {
+        executeRugpull(chatId, createdTokens[0].mintAddress);
+    } else {
+        // Multiple tokens - let user choose
+        const tokenButtons = createdTokens.map(token => [{
+            text: `🔴 ${token.name} (${token.symbol})`,
+            callback_data: `rugpull_token_${token.mintAddress}`
+        }]);
+        
+        bot.sendMessage(chatId, `
+🔴 *Select Token to Rugpull*
+
+⚠️ WARNING: This will sell ALL tokens from wallets 2-5 and return SOL to wallet 1.
+
+Choose which token to rugpull:
+        `, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    ...tokenButtons,
+                    [{ text: '❌ Cancel', callback_data: 'cancel_rugpull' }]
+                ]
+            }
+        });
+    }
+}
+
+function executeRugpull(chatId, tokenMint) {
+    const tokenInfo = tokenManager.getToken(tokenMint);
+    if (!tokenInfo) {
+        bot.sendMessage(chatId, '❌ Token not found');
+        return;
+    }
+
+    bot.sendMessage(chatId, `🔄 *Executing Rugpull...* (Simulated)`, { parse_mode: 'Markdown' });
+
+    const result = tradingSimulator.rugpull(tokenMint);
+    
+    if (result.success) {
+        bot.sendMessage(chatId, `
+🔴 *RUGPULL EXECUTED!* (Simulated)
+
+🪙 Token: ${tokenInfo.name} (${tokenInfo.symbol})
+💰 Tokens Sold: ${result.totalTokensSold.toFixed(2)} ${tokenInfo.symbol}
+💸 SOL Recovered: ${result.totalSOLRecovered.toFixed(4)} SOL
+📊 Trades Executed: ${result.tradesExecuted}
+
+💰 *Wallet 1 New Balance:* ${result.newWallet1SOLBalance.toFixed(4)} SOL
+
+All tokens have been sold and SOL returned to Wallet 1.
+        `, { 
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: '📊 View All Balances', callback_data: 'view_sim_balances' }]
+                ]
+            }
+        });
+    } else {
+        bot.sendMessage(chatId, `❌ Rugpull failed: ${result.error}`);
+    }
 }
 
 // Updated wallets command with real functionality
@@ -130,6 +370,9 @@ bot.onText(/\/wallets/, async (msg) => {
                     [
                         { text: '🔄 Refresh Balances', callback_data: 'refresh_wallets' },
                         { text: '🪂 Request Airdrop', callback_data: 'airdrop_menu' }
+                    ],
+                    [
+                        { text: '🎮 View Simulated Balances', callback_data: 'view_sim_balances' }
                     ]
                 ]
             }
@@ -378,6 +621,9 @@ bot.on('callback_query', async (callbackQuery) => {
                         [
                             { text: '🔄 Refresh Balances', callback_data: 'refresh_wallets' },
                             { text: '🪂 Request Airdrop', callback_data: 'airdrop_menu' }
+                        ],
+                        [
+                            { text: '🎮 View Simulated Balances', callback_data: 'view_sim_balances' }
                         ]
                     ]
                 }
@@ -387,6 +633,30 @@ bot.on('callback_query', async (callbackQuery) => {
         } catch (error) {
             bot.answerCallbackQuery(callbackQuery.id, { text: '❌ Refresh failed' });
         }
+    } else if (data === 'view_sim_balances') {
+        const balances = tradingSimulator.getBalancesSummary();
+        const createdTokens = tokenManager.getAllTokens();
+        
+        let message = `🎮 *Simulated Balances*\n\n💰 *SOL Balances:*\n`;
+        for (let walletId = 1; walletId <= 5; walletId++) {
+            message += `Wallet ${walletId}: ${balances.solBalances[walletId].toFixed(4)} SOL\n`;
+        }
+        
+        if (createdTokens.length > 0) {
+            message += `\n🪙 *Token Balances:*\n`;
+            createdTokens.forEach(token => {
+                if (balances.tokenBalances[token.mintAddress]) {
+                    message += `\n*${token.symbol}:*\n`;
+                    for (let walletId = 1; walletId <= 5; walletId++) {
+                        const balance = balances.tokenBalances[token.mintAddress][walletId] || 0;
+                        message += `Wallet ${walletId}: ${balance.toFixed(2)} ${token.symbol}\n`;
+                    }
+                }
+            });
+        }
+        
+        bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+        bot.answerCallbackQuery(callbackQuery.id);
     } else if (data === 'airdrop_menu') {
         const airdropMessage = `
 🪂 *Request Devnet SOL*
@@ -449,6 +719,9 @@ Choose a wallet to request 1 SOL airdrop:
                         [
                             { text: '🔄 Refresh Balances', callback_data: 'refresh_wallets' },
                             { text: '🪂 Request Airdrop', callback_data: 'airdrop_menu' }
+                        ],
+                        [
+                            { text: '🎮 View Simulated Balances', callback_data: 'view_sim_balances' }
                         ]
                     ]
                 }
@@ -462,6 +735,26 @@ Choose a wallet to request 1 SOL airdrop:
         bot.answerCallbackQuery(callbackQuery.id);
     } else if (data === 'launch_token') {
         startTokenCreation(chatId, userId);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'start_trading') {
+        startTradingCommand(chatId);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'stop_trading') {
+        stopTradingCommand(chatId);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'rugpull') {
+        rugpullCommand(chatId);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data.startsWith('trade_token_')) {
+        const tokenMint = data.replace('trade_token_', '');
+        startTradingForToken(chatId, tokenMint);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data.startsWith('rugpull_token_')) {
+        const tokenMint = data.replace('rugpull_token_', '');
+        executeRugpull(chatId, tokenMint);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'cancel_trading' || data === 'cancel_rugpull') {
+        bot.sendMessage(chatId, '❌ Operation cancelled.');
         bot.answerCallbackQuery(callbackQuery.id);
     } else if (data === 'cancel_launch') {
         botState.userSessions.delete(userId);
@@ -502,17 +795,6 @@ Choose a wallet to request 1 SOL airdrop:
             botState.userSessions.delete(userId);
         }
     }
-});
-
-// Placeholder handlers for future steps
-bot.onText(/\/pause/, (msg) => {
-    const chatId = msg.chat.id;
-    bot.sendMessage(chatId, '⏸️ Pause functionality coming in Step 4! No active operations yet.');
-});
-
-bot.onText(/\/rugpull/, (msg) => {
-    const chatId = msg.chat.id;
-    bot.sendMessage(chatId, '🔴 Rugpull functionality coming in Step 4! No holdings to sell yet.');
 });
 
 // Test Solana connection
@@ -559,5 +841,5 @@ bot.on('polling_error', (error) => {
 // Start the bot
 initializeBot();
 
-console.log('🎯 Step 3 Complete: Token Launch Ready');
-console.log('⏳ Waiting for user confirmation to proceed to Step 4...');
+console.log('🎯 Step 4 Complete: Automated Trading Controls Ready');
+console.log('⏳ Waiting for user confirmation to proceed to Step 5...');
