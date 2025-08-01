@@ -1231,6 +1231,76 @@ Choose a wallet to request 1 SOL airdrop:
     } else if (data === 'cancel_trading' || data === 'cancel_rugpull' || data === 'cancel_pool_creation') {
         bot.sendMessage(chatId, '❌ Operation cancelled.');
         bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'skip_description') {
+        const session = botState.userSessions.get(userId);
+        if (session) {
+            session.tokenData.description = '';
+            session.step = 'waiting_for_image';
+            
+            bot.sendMessage(chatId, `
+⏭️ Description: *Skipped*
+
+*Step 5/5:* Please enter your token image URL (optional)
+(Example: "https://example.com/token-image.png")
+
+💡 *Tips:*
+- Must be a valid HTTP/HTTPS URL
+- PNG, JPG, or GIF format recommended
+- Will be stored as metadata
+- Send "skip" to proceed without image
+            `, { 
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: '⏭️ Skip Image', callback_data: 'skip_image' },
+                            { text: '❌ Cancel', callback_data: 'cancel_launch' }
+                        ]
+                    ]
+                }
+            });
+            
+            botState.userSessions.set(userId, session);
+        }
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'skip_image') {
+        const session = botState.userSessions.get(userId);
+        if (session) {
+            session.tokenData.imageUrl = '';
+            
+            // Show final confirmation
+            const confirmMessage = `
+🎯 *Confirm Token Creation*
+
+📛 *Name:* ${session.tokenData.name}
+🏷️ *Symbol:* ${session.tokenData.symbol}
+🪙 *Total Supply:* ${session.tokenData.supply.toLocaleString()} ${session.tokenData.symbol}
+📝 *Description:* ${session.tokenData.description || 'None'}
+🖼️ *Image:* None
+
+💰 *Mint to:* Wallet 1
+🌐 *Network:* Solana Devnet
+📝 *Metadata:* Will be applied using Metaplex standard
+
+Ready to create your token with metadata?
+            `;
+
+            bot.sendMessage(chatId, confirmMessage, {
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: '🚀 Create Token', callback_data: 'confirm_create_token' },
+                            { text: '❌ Cancel', callback_data: 'cancel_launch' }
+                        ]
+                    ]
+                }
+            });
+            
+            session.step = 'waiting_for_confirmation';
+            botState.userSessions.set(userId, session);
+        }
+        bot.answerCallbackQuery(callbackQuery.id);
     } else if (data === 'cancel_launch') {
         botState.userSessions.delete(userId);
         bot.sendMessage(chatId, '❌ Token creation cancelled.');
