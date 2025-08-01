@@ -50,6 +50,7 @@ Available Commands:
 💰 /wallets - Show wallet balances
 🪂 /airdrop [wallet_number] - Request devnet SOL
 🚀 /launch - Launch new meme coin
+🌱 /seed_wallets - Distribute tokens to trading wallets ✅ NEW
 🏊 /create_pool - Create Raydium pool ✅ NEW
 📈 /start_trading - Start automated trading ✅ REAL SWAPS
 ⏸️ /stop_trading - Stop automated trading
