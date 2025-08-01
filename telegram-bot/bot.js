@@ -48,7 +48,7 @@ bot.onText(/\/start/, (msg) => {
 Available Commands:
 📋 /help - Show all commands
 💰 /wallets - Show wallet balances
-🪂 /airdrop [wallet_number] - Request devnet SOL
+🪂 /airdrop \\[wallet_number\\] - Request devnet SOL
 🚀 /launch - Launch new meme coin
 🌱 /seed_wallets - Distribute tokens to trading wallets ✅ NEW
 🏊 /create_pool - Create Raydium pool ✅ NEW
