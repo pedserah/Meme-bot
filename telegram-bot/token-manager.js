@@ -9,10 +9,16 @@ const {
 } = require('@solana/web3.js');
 
 const {
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+    getAssociatedTokenAddress,
+    createAssociatedTokenAccountInstruction,
+    getAccount,
+    TokenAccountNotFoundError,
+    TokenInvalidAccountOwnerError,
     createMint,
     getOrCreateAssociatedTokenAccount,
-    mintTo,
-    TOKEN_PROGRAM_ID
+    mintTo
 } = require('@solana/spl-token');
 
 class TokenManager {
