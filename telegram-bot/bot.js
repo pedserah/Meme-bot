@@ -144,8 +144,8 @@ async function showStatus(chatId) {
         tradingInfo = `✅ Active (${runtime}m) - ${stats.totalTrades} trades (${successRate}% success)`;
     }
     
-    const statusMessage = `
-📊 *Bot Status*
+    let statusMessage = `
+📊 *Enhanced Bot Status*
 
 🤖 Bot: Online ✅
 🌐 Network: ${process.env.SOLANA_NETWORK || 'devnet'} ✅
@@ -153,11 +153,41 @@ async function showStatus(chatId) {
 🪙 Tokens Created: ${createdTokens.length}
 🏊 Pools Created: ${createdPools.length}
 📈 Trading: ${tradingInfo}
-⚡ Mode: Real DEX Trading (Step 5)
+⚡ Mode: Real DEX Trading (Step 6)
 
-*Current Step:* Step 5 Complete - Real Raydium integration
-*Features:* Pool creation, real swaps, rugpull protection
+*Current Step:* Step 6 Complete - Enhanced metadata flow
+*Features:* Token metadata, rich launch workflow, enhanced status
     `;
+
+    if (createdTokens.length > 0) {
+        statusMessage += `\n\n🪙 *Created Tokens:*\n`;
+        
+        createdTokens.forEach((token, index) => {
+            const hasPool = raydiumManager.hasPool(token.mintAddress);
+            const poolStatus = hasPool ? '🏊 Pool Created' : '❌ No Pool';
+            
+            statusMessage += `\n${index + 1}. *${token.name}* (${token.symbol})\n`;
+            statusMessage += `   📍 Mint: \`${token.mintAddress.substring(0, 8)}...\`\n`;
+            statusMessage += `   📝 Description: ${token.description || 'None'}\n`;
+            statusMessage += `   🖼️ Image: ${token.imageUrl ? 'Yes' : 'No'}\n`;
+            statusMessage += `   ${poolStatus}\n`;
+            
+            if (tradingStatus.isTrading && tradingStatus.currentToken === token.mintAddress) {
+                statusMessage += `   📈 *Currently Trading*\n`;
+            }
+        });
+    }
+
+    if (createdPools.length > 0 && createdTokens.length > 0) {
+        statusMessage += `\n\n🏊 *Pool Details:*\n`;
+        
+        createdPools.forEach((pool, index) => {
+            const tokenInfo = tokenManager.getToken(pool.tokenMint);
+            statusMessage += `\n${index + 1}. *${tokenInfo ? tokenInfo.name : 'Unknown'}* Pool\n`;
+            statusMessage += `   💰 Liquidity: ${pool.solAmount} SOL + ${pool.liquidityAmount} tokens\n`;
+            statusMessage += `   📍 Pool ID: \`${pool.poolId.substring(0, 8)}...\`\n`;
+        });
+    }
     
     bot.sendMessage(chatId, statusMessage, { parse_mode: 'Markdown' });
 }
