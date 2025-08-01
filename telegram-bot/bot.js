@@ -57,8 +57,8 @@ Available Commands:
 🔴 /rugpull - Complete rugpull operation ✅ NEW
 📊 /status - Show current operations
 
-⚡ *Step 5 Complete:* Real Raydium DEX integration!
-🎯 *Mode:* Real trading on devnet pools
+⚡ *Step 6 Complete:* Enhanced metadata & rich launch flow!
+🎯 *Features:* Token descriptions, images, guided workflow
     `;
     
     bot.sendMessage(chatId, welcomeMessage, { 
