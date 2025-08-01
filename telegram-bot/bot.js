@@ -100,7 +100,7 @@ bot.onText(/\/help/, (msg) => {
 
 *Step 3: Token Launch* ✅
 - /launch - Create new SPL token
-- Interactive token creation process
+- /seed_wallets - Distribute tokens to trading wallets
 
 *Step 4: Trading Simulation* ✅
 - Simulation mode available for testing
