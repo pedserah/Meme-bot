@@ -78,6 +78,7 @@ Available Commands:
                     { text: '⏸️ Stop Trading', callback_data: 'stop_trading' }
                 ],
                 [
+                    { text: '🔴 Rugpull', callback_data: 'rugpull' },
                     { text: '📊 Bot Status', callback_data: 'show_status' }
                 ]
             ]
