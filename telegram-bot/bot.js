@@ -49,7 +49,7 @@ Available Commands:
 📋 /help - Show all commands
 💰 /wallets - Show wallet balances
 🪂 /airdrop \\[wallet_number\\] - Request devnet SOL
-🚀 /launch - Launch new meme coin
+🚀 /launch - Launch new meme coin with metadata ✅ ENHANCED
 🌱 /seed_wallets - Distribute tokens to trading wallets ✅ NEW
 🏊 /create_pool - Create Raydium pool ✅ NEW
 📈 /start_trading - Start automated trading ✅ REAL SWAPS
