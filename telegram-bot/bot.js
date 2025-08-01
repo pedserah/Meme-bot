@@ -742,11 +742,11 @@ function startTokenCreation(chatId, userId) {
     });
 
     const message = `
-🚀 *Create New Meme Coin*
+🚀 *Create New Meme Coin* - Enhanced Flow
 
-Let's launch your token on Solana devnet!
+Let's launch your token with full metadata on Solana devnet!
 
-*Step 1/3:* Please enter your token name
+*Step 1/5:* Please enter your token name
 (Example: "Doge Killer", "Moon Token")
 
 💡 *Tips:*
