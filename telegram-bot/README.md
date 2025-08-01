@@ -1,89 +1,97 @@
 # Solana Telegram Bot - Educational Version
 
-## Step 5: Real Raydium DEX Integration ✅ COMPLETE
+## Step 6: Metadata & Rich Launch Flow ✅ COMPLETE
 
 ### Features Implemented:
 - ✅ Telegram bot connection with BotFather token
 - ✅ Solana devnet connection 
 - ✅ 5 wallet integration with mnemonic derivation
-- ✅ SPL token creation functionality
-- ✅ **Real Raydium pool creation**
-- ✅ **Real DEX swap integration**
-- ✅ **Automated real trading system**
-- ✅ **Complete rugpull with liquidity removal**
+- ✅ **Enhanced SPL token creation with metadata**
+- ✅ **Rich launch workflow with guided steps**
+- ✅ **Metaplex metadata standard integration**
+- ✅ **Enhanced status command with detailed info**
+- ✅ Real Raydium pool creation and DEX integration
+- ✅ Automated trading system with balance fixes
 
-### How to Test Step 5:
+### How to Test Step 6:
 
-#### Prerequisites:
-1. **Create a token**: Use `/launch` to create your test token first
-2. **Get SOL**: Use `/airdrop 1` to ensure wallet 1 has enough SOL for pool creation
-
-#### Testing Flow:
-1. **Create Pool**: Use `/create_pool` to create Raydium liquidity pool
-2. **Start Real Trading**: Use `/start_trading` to begin automated DEX swaps
-3. **Monitor Trades**: Watch real transactions execute every 30-90 seconds
-4. **Stop Trading**: Use `/stop_trading` to halt operations
-5. **Test Rugpull**: Use `/rugpull` to sell all tokens and remove liquidity
+#### Enhanced Token Creation Flow:
+1. **Start Launch**: Use `/launch` to begin enhanced creation process
+2. **Follow 5-Step Process**:
+   - Step 1/5: Enter token name
+   - Step 2/5: Enter token symbol
+   - Step 3/5: Enter total supply
+   - Step 4/5: Enter description (optional)
+   - Step 5/5: Enter image URL (optional)
+3. **Review & Confirm**: See all metadata before creation
+4. **Guided Next Steps**: Choose pool creation or wallet seeding
 
 ### Current Features:
 
-#### 🏊 Real Pool Creation (`/create_pool`):
-- Creates actual Raydium liquidity pools on devnet
-- Uses wallet 1 for pool operations
-- Adds initial liquidity (0.5 SOL + tokens)
-- Returns pool address and transaction links
-- Solana Explorer integration
+#### 🚀 Enhanced Token Creation (`/launch`):
+- **5-Step Interactive Process**: Name → Symbol → Supply → Description → Image
+- **Metadata Integration**: Uses Metaplex token metadata standard
+- **Optional Fields**: Description and image URL are optional
+- **Input Validation**: Comprehensive validation for all fields
+- **Skip Options**: Can skip description or image easily
+- **Rich Confirmation**: Shows all metadata before creation
 
-#### ⚡ Real Automated Trading (`/start_trading`):
-- **Real DEX swaps** using Raydium integration
-- 70% buy / 30% sell ratio (as requested)
-- Random intervals: 30-90 seconds (updated from 45-120)
-- Cycles through wallets 2-5 for trading
-- Real transaction logging with Explorer links
-- Success/failure tracking and statistics
+#### 📝 Token Metadata Features:
+- **Description**: Up to 200 characters describing the token
+- **Image URL**: Optional image for the token (HTTP/HTTPS)
+- **Metaplex Standard**: Follows official Solana metadata format
+- **JSON Metadata**: Structured metadata with attributes and properties
+- **Devnet Testing**: Simulated metadata creation for testing
 
-#### 🔴 Complete Rugpull (`/rugpull`):
-- Sells ALL tokens from wallets 2-5 via real swaps
-- Removes ALL liquidity from pool using wallet 1
-- Returns all recovered SOL to wallet 1
-- Complete pool destruction
-- Multi-step confirmation for safety
+#### 🎯 Rich Launch Workflow:
+- **Guided Process**: Step-by-step token creation
+- **Smart Next Steps**: Automatically suggests pool creation and seeding
+- **Enhanced Feedback**: Detailed creation confirmation
+- **Workflow Integration**: Seamless flow to pool and trading setup
+
+#### 📊 Enhanced Status Command (`/status`):
+- **Detailed Token Info**: Shows name, symbol, mint address for each token
+- **Metadata Display**: Shows description and image status
+- **Pool Status**: Indicates which tokens have pools created
+- **Trading Status**: Shows active trading information
+- **Pool Details**: Displays liquidity amounts and pool IDs
 
 ### Commands Available:
-- `/start` - Main menu with all trading buttons
-- `/help` - Complete command reference with real trading info
-- `/status` - Bot status including trading statistics
-- `/wallets` - Real wallet balances + pool information
+- `/start` - Main menu with enhanced launch options
+- `/help` - Complete command reference
+- `/status` - ✅ Enhanced status with token metadata details
+- `/wallets` - Real wallet balances and pool information
 - `/airdrop [1-5]` - Request devnet SOL for testing
-- `/launch` - Create new SPL token
-- `/create_pool` - ✅ Create real Raydium liquidity pool
-- `/start_trading` - ✅ Begin real automated DEX trading
-- `/stop_trading` - ✅ Stop trading with detailed statistics
-- `/rugpull` - ✅ Complete rugpull with liquidity removal
+- `/launch` - ✅ Enhanced token creation with metadata
+- `/seed_wallets` - Distribute tokens to trading wallets
+- `/create_pool` - Create real Raydium liquidity pool
+- `/start_trading` - Begin real automated DEX trading
+- `/stop_trading` - Stop trading with detailed statistics
+- `/rugpull` - Complete rugpull with liquidity removal
 
-### Real Trading Features:
-- **Actual Transactions**: All trades are real devnet transactions
-- **Raydium Integration**: Uses official Raydium SDK for swaps
-- **Pool Management**: Real liquidity provision and removal
-- **Transaction Confirmation**: All swaps confirmed on-chain
-- **Explorer Links**: Direct links to view transactions
-- **Error Handling**: Robust handling of failed swaps
-- **Balance Validation**: Ensures sufficient funds before trades
+### Enhanced Token Creation Process:
+1. **Name Input**: Token name (max 32 characters)
+2. **Symbol Input**: Token ticker (max 10 characters, alphanumeric)
+3. **Supply Input**: Total supply (max 1 trillion)
+4. **Description Input**: Optional description (max 200 characters)
+5. **Image Input**: Optional image URL (must be valid HTTP/HTTPS)
+6. **Metadata Creation**: Applies Metaplex metadata standard
+7. **Next Steps**: Guided workflow to pool and trading setup
 
-### Safety Features:
-- **Devnet Only**: All operations on Solana devnet (no real money)
-- **Confirmation Flows**: Multi-step confirmations for rugpull
-- **Error Recovery**: Graceful handling of transaction failures
-- **Stop Controls**: Can halt trading or rugpull at any time
-- **Real Balance Checks**: Validates actual wallet balances
+### Metadata Validation:
+- **Name**: Required, max 32 characters
+- **Symbol**: Required, max 10 characters, letters/numbers only
+- **Supply**: Required, positive number, max 1 trillion
+- **Description**: Optional, max 200 characters
+- **Image URL**: Optional, must be valid HTTP/HTTPS URL
 
-### Technical Implementation:
-- **Raydium SDK**: Official Raydium DEX integration
-- **SPL Token Support**: Full SPL token standard compliance
-- **Real Transaction Building**: Proper transaction construction
-- **Slippage Handling**: Configurable slippage protection
-- **Pool State Tracking**: Monitors created pools and liquidity
-- **Wallet Cycling**: Smart rotation through trading wallets
+### Rich Launch Workflow Features:
+- **Step-by-Step Guidance**: Clear progression through 5 steps
+- **Skip Options**: Easy skip buttons for optional fields
+- **Validation Feedback**: Real-time input validation
+- **Enhanced Confirmation**: Full metadata preview before creation
+- **Smart Next Steps**: Automatic suggestions for pool and seeding
+- **Workflow Integration**: Seamless transition to next features
 
 ### Environment Variables:
 - `TELEGRAM_BOT_TOKEN` - Your BotFather token
@@ -91,7 +99,14 @@
 - `WALLET_*_MNEMONIC` - 5 wallet mnemonics with derivation path
 - `DERIVATION_PATH` - Solana wallet derivation path (m/44'/501'/0'/0')
 
+### Safety Features:
+- **Devnet Only**: All operations on Solana devnet (no real money)
+- **Metadata Fallback**: Token creation continues even if metadata fails
+- **Input Validation**: Comprehensive validation for all inputs
+- **Skip Options**: Optional fields can be easily skipped
+- **Clear Feedback**: Detailed success/error messages
+
 ### Next Steps:
 - **Mainnet Preparation**: Ready for safe mainnet deployment
-- **Production Safeguards**: Additional safety measures for real money
-- **Advanced Features**: Enhanced trading strategies and controls
+- **Production Metadata**: Real Metaplex metadata integration
+- **Advanced Features**: Enhanced trading strategies and UI improvements
