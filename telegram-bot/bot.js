@@ -166,8 +166,8 @@ async function showStatus(chatId) {
             const hasPool = raydiumManager.hasPool(token.mintAddress);
             const poolStatus = hasPool ? '🏊 Pool Created' : '❌ No Pool';
             
-            statusMessage += `\n${index + 1}. *${token.name}* (${token.symbol})\n`;
-            statusMessage += `   📍 Mint: \`${token.mintAddress.substring(0, 8)}...\`\n`;
+            statusMessage += `\n${index + 1}\\. *${token.name}* (${token.symbol})\n`;
+            statusMessage += `   📍 Mint: \`${token.mintAddress.substring(0, 8)}\\.\\.\\.\`\n`;
             statusMessage += `   📝 Description: ${token.description || 'None'}\n`;
             statusMessage += `   🖼️ Image: ${token.imageUrl ? 'Yes' : 'No'}\n`;
             statusMessage += `   ${poolStatus}\n`;
@@ -183,9 +183,9 @@ async function showStatus(chatId) {
         
         createdPools.forEach((pool, index) => {
             const tokenInfo = tokenManager.getToken(pool.tokenMint);
-            statusMessage += `\n${index + 1}. *${tokenInfo ? tokenInfo.name : 'Unknown'}* Pool\n`;
+            statusMessage += `\n${index + 1}\\. *${tokenInfo ? tokenInfo.name : 'Unknown'}* Pool\n`;
             statusMessage += `   💰 Liquidity: ${pool.solAmount} SOL + ${pool.liquidityAmount} tokens\n`;
-            statusMessage += `   📍 Pool ID: \`${pool.poolId.substring(0, 8)}...\`\n`;
+            statusMessage += `   📍 Pool ID: \`${pool.poolId.substring(0, 8)}\\.\\.\\.\`\n`;
         });
     }
     
