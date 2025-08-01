@@ -192,19 +192,27 @@ class TokenManager {
 🪙 *Total Supply:* ${tokenInfo.totalSupply.toLocaleString()} ${tokenInfo.symbol}
 🔢 *Decimals:* ${tokenInfo.decimals}
 
+📝 *Description:*
+${tokenInfo.description || 'No description provided'}
+
+${tokenInfo.imageUrl ? `🖼️ *Image:* ${tokenInfo.imageUrl}\n` : ''}
 🏦 *Mint Address:*
 \`${tokenInfo.mintAddress}\`
 
 💰 *Token Account:*
 \`${tokenInfo.tokenAccount}\`
 
-🔗 *Transaction:*
+🔗 *Mint Transaction:*
 \`${tokenInfo.mintSignature}\`
 
-🌐 *View on Solana Explorer:*
+${tokenInfo.metadataResult ? `📝 *Metadata Transaction:*
+\`${tokenInfo.metadataResult.signature}\`
+
+` : ''}🌐 *View on Solana Explorer:*
 [Click Here](${explorerUrl}) (Devnet)
 
 ✅ *All tokens minted to Wallet 1*
+${tokenInfo.metadataResult ? '✅ *Metadata applied successfully*' : '⚠️ *Created without metadata*'}
         `;
     }
 
