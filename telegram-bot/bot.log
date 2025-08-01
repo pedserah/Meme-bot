@@ -1,0 +1,20 @@
+
+> solana-telegram-bot@1.0.0 start
+> node bot.js
+
+✅ Initialized 5/5 wallets
+💰 Wallet 1: 9ycAEadX9fk5yCWzSH9mCG9BWK8Jnm5d25uFrD4MTZz6
+💰 Wallet 2: 2j3iK3eYLpXVfXBhKPrUeGVNm9SxYtVeobPLkg4QwBUf
+💰 Wallet 3: BTYfU4oa7Df1jb1sJVfBq7H9bJ3SKTwR1yLQa4mMayUf
+💰 Wallet 4: 7zsJfqx8YfQ6MjRK3SYVUtgRSWJB75aUqU7zxqvV7y3e
+💰 Wallet 5: Eo3HZpHcQMiV3pTFNrHqEp7PxvsA8HqeoSTzL8SefcFh
+🚀 Solana Telegram Bot Starting...
+📡 Connected to Solana devnet
+🔄 Testing connections...
+🎯 Step 5 Complete: Real Raydium DEX Integration Ready
+⏳ Waiting for user testing of pool creation and real trading...
+✅ Solana connection successful: { 'feature-set': 3640012085, 'solana-core': '2.3.6' }
+✅ All connections successful!
+📱 Bot is ready for Telegram commands
+💬 Send /start to your bot to begin
+💼 Wallet Summary: 5 wallets, 5.0411 SOL total
