@@ -4,7 +4,8 @@ const {
     Transaction, 
     SystemProgram,
     PublicKey,
-    LAMPORTS_PER_SOL
+    LAMPORTS_PER_SOL,
+    sendAndConfirmTransaction
 } = require('@solana/web3.js');
 
 const {
