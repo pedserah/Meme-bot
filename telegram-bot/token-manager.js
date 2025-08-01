@@ -270,7 +270,7 @@ ${tokenInfo.metadataResult ? '✅ *Metadata applied successfully*' : '⚠️ *Cr
     }
 
     // Validate token creation parameters
-    validateTokenParams(name, symbol, supply) {
+    validateTokenParams(name, symbol, supply, description, imageUrl) {
         const errors = [];
 
         if (!name || name.trim().length === 0) {
@@ -295,6 +295,17 @@ ${tokenInfo.metadataResult ? '✅ *Metadata applied successfully*' : '⚠️ *Cr
         }
         if (supply && supply > 1000000000000) {
             errors.push('Total supply cannot exceed 1 trillion');
+        }
+
+        if (description && description.length > 200) {
+            errors.push('Description must be 200 characters or less');
+        }
+
+        if (imageUrl && imageUrl.trim().length > 0) {
+            const urlPattern = /^https?:\/\/.+/;
+            if (!urlPattern.test(imageUrl)) {
+                errors.push('Image URL must be a valid HTTP/HTTPS URL');
+            }
         }
 
         return errors;
