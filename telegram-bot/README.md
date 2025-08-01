@@ -1,49 +1,89 @@
 # Solana Telegram Bot - Educational Version
 
-## Step 4: Automated Trading Controls ✅ COMPLETE
+## Step 5: Real Raydium DEX Integration ✅ COMPLETE
 
 ### Features Implemented:
 - ✅ Telegram bot connection with BotFather token
 - ✅ Solana devnet connection 
 - ✅ 5 wallet integration with mnemonic derivation
 - ✅ SPL token creation functionality
-- ✅ Automated trading simulation system
-- ✅ Real-time trade logging and notifications
-- ✅ Rugpull functionality with balance recovery
+- ✅ **Real Raydium pool creation**
+- ✅ **Real DEX swap integration**
+- ✅ **Automated real trading system**
+- ✅ **Complete rugpull with liquidity removal**
 
-### How to Test Step 4:
-1. **Create a token first**: Use `/launch` to create your test token
-2. **Start automated trading**: Use `/start_trading` or click "📈 Start Trading"
-3. **Watch real-time trades**: Bot will automatically execute trades every 45-120 seconds
-4. **Monitor balances**: Use "📊 View Balances" to see simulated balances
-5. **Stop trading**: Use `/stop_trading` when done
-6. **Test rugpull**: Use `/rugpull` to sell all tokens and recover SOL
+### How to Test Step 5:
+
+#### Prerequisites:
+1. **Create a token**: Use `/launch` to create your test token first
+2. **Get SOL**: Use `/airdrop 1` to ensure wallet 1 has enough SOL for pool creation
+
+#### Testing Flow:
+1. **Create Pool**: Use `/create_pool` to create Raydium liquidity pool
+2. **Start Real Trading**: Use `/start_trading` to begin automated DEX swaps
+3. **Monitor Trades**: Watch real transactions execute every 30-90 seconds
+4. **Stop Trading**: Use `/stop_trading` to halt operations
+5. **Test Rugpull**: Use `/rugpull` to sell all tokens and remove liquidity
 
 ### Current Features:
-- **Simulated Trading**: 70% buy / 30% sell ratio with random intervals
-- **Multi-Wallet Cycling**: Trades cycle through wallets 2-5 automatically  
-- **Real-Time Logging**: Every trade is logged to Telegram with details
-- **Balance Tracking**: Separate simulated balances for trading testing
-- **Rugpull Protection**: Instantly sell all tokens and return SOL to wallet 1
-- **Session Management**: Start/stop trading with proper state management
 
-### Trading Simulation Features:
-- **Smart Trade Generation**: Random buy/sell decisions with realistic amounts
-- **Price Simulation**: Simulated token prices with slippage
-- **Balance Management**: Tracks SOL and token balances across all wallets
-- **Trade Validation**: Ensures sufficient balances before executing trades
-- **Statistics Tracking**: Monitors total trades, buy/sell ratios, runtime
+#### 🏊 Real Pool Creation (`/create_pool`):
+- Creates actual Raydium liquidity pools on devnet
+- Uses wallet 1 for pool operations
+- Adds initial liquidity (0.5 SOL + tokens)
+- Returns pool address and transaction links
+- Solana Explorer integration
+
+#### ⚡ Real Automated Trading (`/start_trading`):
+- **Real DEX swaps** using Raydium integration
+- 70% buy / 30% sell ratio (as requested)
+- Random intervals: 30-90 seconds (updated from 45-120)
+- Cycles through wallets 2-5 for trading
+- Real transaction logging with Explorer links
+- Success/failure tracking and statistics
+
+#### 🔴 Complete Rugpull (`/rugpull`):
+- Sells ALL tokens from wallets 2-5 via real swaps
+- Removes ALL liquidity from pool using wallet 1
+- Returns all recovered SOL to wallet 1
+- Complete pool destruction
+- Multi-step confirmation for safety
 
 ### Commands Available:
-- `/start` - Main menu with trading buttons
-- `/help` - Complete command reference
-- `/status` - Bot status including active trading info
-- `/wallets` - Real wallet balances + simulated balances button
+- `/start` - Main menu with all trading buttons
+- `/help` - Complete command reference with real trading info
+- `/status` - Bot status including trading statistics
+- `/wallets` - Real wallet balances + pool information
 - `/airdrop [1-5]` - Request devnet SOL for testing
 - `/launch` - Create new SPL token
-- `/start_trading` - ✅ Begin automated trading simulation
-- `/stop_trading` - ✅ Stop trading and show statistics  
-- `/rugpull` - ✅ Sell all tokens and recover SOL
+- `/create_pool` - ✅ Create real Raydium liquidity pool
+- `/start_trading` - ✅ Begin real automated DEX trading
+- `/stop_trading` - ✅ Stop trading with detailed statistics
+- `/rugpull` - ✅ Complete rugpull with liquidity removal
+
+### Real Trading Features:
+- **Actual Transactions**: All trades are real devnet transactions
+- **Raydium Integration**: Uses official Raydium SDK for swaps
+- **Pool Management**: Real liquidity provision and removal
+- **Transaction Confirmation**: All swaps confirmed on-chain
+- **Explorer Links**: Direct links to view transactions
+- **Error Handling**: Robust handling of failed swaps
+- **Balance Validation**: Ensures sufficient funds before trades
+
+### Safety Features:
+- **Devnet Only**: All operations on Solana devnet (no real money)
+- **Confirmation Flows**: Multi-step confirmations for rugpull
+- **Error Recovery**: Graceful handling of transaction failures
+- **Stop Controls**: Can halt trading or rugpull at any time
+- **Real Balance Checks**: Validates actual wallet balances
+
+### Technical Implementation:
+- **Raydium SDK**: Official Raydium DEX integration
+- **SPL Token Support**: Full SPL token standard compliance
+- **Real Transaction Building**: Proper transaction construction
+- **Slippage Handling**: Configurable slippage protection
+- **Pool State Tracking**: Monitors created pools and liquidity
+- **Wallet Cycling**: Smart rotation through trading wallets
 
 ### Environment Variables:
 - `TELEGRAM_BOT_TOKEN` - Your BotFather token
@@ -51,21 +91,7 @@
 - `WALLET_*_MNEMONIC` - 5 wallet mnemonics with derivation path
 - `DERIVATION_PATH` - Solana wallet derivation path (m/44'/501'/0'/0')
 
-### Safety Features:
-- **Simulation Mode**: No real trades - all trading is simulated
-- **Devnet Only**: Educational purposes with no real money
-- **Balance Separation**: Real vs simulated balances clearly marked
-- **Emergency Stop**: Can stop trading or rugpull at any time
-- **Input Validation**: Comprehensive error handling
-
-### Trading Flow:
-1. **Token Creation**: Create token with `/launch` (minted to wallet 1)
-2. **Start Trading**: Use `/start_trading` to begin simulation  
-3. **Automated Execution**: Bot trades every 45-120 seconds automatically
-4. **Real-Time Updates**: Each trade is logged with full details
-5. **Balance Monitoring**: Track simulated balances across all wallets
-6. **Clean Exit**: Stop trading or rugpull to recover all assets
-
 ### Next Steps:
-- **Step 5**: Real Raydium pool integration (coming next)
-- **Step 6**: Live trading with actual DEX transactions
+- **Mainnet Preparation**: Ready for safe mainnet deployment
+- **Production Safeguards**: Additional safety measures for real money
+- **Advanced Features**: Enhanced trading strategies and controls
