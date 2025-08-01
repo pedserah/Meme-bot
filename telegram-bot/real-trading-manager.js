@@ -97,23 +97,10 @@ class RealTradingManager {
                     tradeParams.walletId
                 );
             } else {
-                // For sell, we need to determine the actual token amount to sell
-                const wallet = this.walletManager.getWallet(tradeParams.walletId);
-                if (!wallet) {
-                    return {
-                        success: false,
-                        error: `Wallet ${tradeParams.walletId} not found`
-                    };
-                }
-
-                // Try to get current token balance (this is simplified - in real implementation 
-                // would need to check the actual token account balance)
-                // For now, we'll use a default small amount for testing
-                const tokenAmountToSell = 10 + Math.random() * 40; // 10-50 tokens
-
+                // For sell, use the amount directly (already calculated with balance check)
                 result = await this.raydiumManager.executeSellSwap(
                     this.currentToken, 
-                    tokenAmountToSell, 
+                    tradeParams.amount, 
                     tradeParams.walletId
                 );
             }
