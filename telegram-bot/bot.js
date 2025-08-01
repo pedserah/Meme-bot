@@ -161,6 +161,132 @@ async function showStatus(chatId) {
     bot.sendMessage(chatId, statusMessage, { parse_mode: 'Markdown' });
 }
 
+// Seed Wallets Command
+bot.onText(/\/seed_wallets/, (msg) => {
+    const chatId = msg.chat.id;
+    seedWalletsCommand(chatId);
+});
+
+function seedWalletsCommand(chatId) {
+    const createdTokens = tokenManager.getAllTokens();
+    
+    if (createdTokens.length === 0) {
+        bot.sendMessage(chatId, `
+❌ *No Tokens Found*
+
+You need to create a token first before seeding wallets.
+
+Use /launch to create your first token!
+        `, { parse_mode: 'Markdown' });
+        return;
+    }
+
+    // If only one token, seed immediately
+    if (createdTokens.length === 1) {
+        seedWalletsForToken(chatId, createdTokens[0].mintAddress);
+    } else {
+        // Multiple tokens - let user choose
+        const tokenButtons = createdTokens.map(token => [{
+            text: `🌱 ${token.name} (${token.symbol})`,
+            callback_data: `seed_token_${token.mintAddress}`
+        }]);
+        
+        bot.sendMessage(chatId, `
+🌱 *Select Token to Distribute*
+
+Choose which token you want to distribute to trading wallets:
+        `, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    ...tokenButtons,
+                    [{ text: '❌ Cancel', callback_data: 'cancel_seed' }]
+                ]
+            }
+        });
+    }
+}
+
+async function seedWalletsForToken(chatId, tokenMint) {
+    const tokenInfo = tokenManager.getToken(tokenMint);
+    if (!tokenInfo) {
+        bot.sendMessage(chatId, '❌ Token not found');
+        return;
+    }
+
+    try {
+        bot.sendMessage(chatId, `
+🔄 *Seeding Trading Wallets...*
+
+🪙 Token: ${tokenInfo.name} (${tokenInfo.symbol})
+🌱 Distributing tokens from Wallet 1 to Wallets 2-5
+💰 Amount per wallet: ~${(tokenInfo.totalSupply * 0.05).toLocaleString()} ${tokenInfo.symbol}
+
+This may take 30-60 seconds...
+        `, { parse_mode: 'Markdown' });
+
+        const seedResults = [];
+        const amountPerWallet = tokenInfo.totalSupply * 0.05; // 5% of total supply per wallet
+
+        // Transfer tokens from wallet 1 to wallets 2-5
+        for (let walletId = 2; walletId <= 5; walletId++) {
+            try {
+                const result = await raydiumManager.transferTokens(
+                    tokenMint,
+                    1, // from wallet 1
+                    walletId, // to wallet 2-5
+                    amountPerWallet
+                );
+                
+                if (result.success) {
+                    seedResults.push(result);
+                    console.log(`✅ Seeded wallet ${walletId} with ${amountPerWallet} ${tokenInfo.symbol}`);
+                }
+            } catch (error) {
+                console.error(`❌ Failed to seed wallet ${walletId}:`, error.message);
+                seedResults.push({
+                    success: false,
+                    toWallet: walletId,
+                    error: error.message
+                });
+            }
+        }
+
+        const successfulSeeds = seedResults.filter(r => r.success).length;
+        const totalDistributed = successfulSeeds * amountPerWallet;
+
+        bot.sendMessage(chatId, `
+🌱 *Wallet Seeding Complete!*
+
+🪙 Token: ${tokenInfo.name} (${tokenInfo.symbol})
+✅ Successful Transfers: ${successfulSeeds}/4
+💰 Total Distributed: ${totalDistributed.toLocaleString()} ${tokenInfo.symbol}
+
+*Wallet Distribution:*
+• Wallet 2: ${seedResults[0]?.success ? '✅' : '❌'} ${amountPerWallet.toLocaleString()} ${tokenInfo.symbol}
+• Wallet 3: ${seedResults[1]?.success ? '✅' : '❌'} ${amountPerWallet.toLocaleString()} ${tokenInfo.symbol}
+• Wallet 4: ${seedResults[2]?.success ? '✅' : '❌'} ${amountPerWallet.toLocaleString()} ${tokenInfo.symbol}
+• Wallet 5: ${seedResults[3]?.success ? '✅' : '❌'} ${amountPerWallet.toLocaleString()} ${tokenInfo.symbol}
+
+🎯 Wallets are now ready for trading!
+        `, { 
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: '📈 Start Trading', callback_data: `trade_token_${tokenMint}` },
+                        { text: '💰 Check Balances', callback_data: 'show_wallets' }
+                    ]
+                ]
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Wallet seeding error:', error);
+        bot.sendMessage(chatId, `❌ Wallet seeding failed: ${error.message}`);
+    }
+}
+
 // Create Pool Command
 bot.onText(/\/create_pool/, (msg) => {
     const chatId = msg.chat.id;
