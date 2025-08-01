@@ -1314,13 +1314,15 @@ Ready to create your token with metadata?
         }
 
         try {
-            bot.answerCallbackQuery(callbackQuery.id, { text: '🚀 Creating token...' });
-            bot.sendMessage(chatId, '🔄 *Creating your token...* This may take 30-60 seconds.', { parse_mode: 'Markdown' });
+            bot.answerCallbackQuery(callbackQuery.id, { text: '🚀 Creating token with metadata...' });
+            bot.sendMessage(chatId, '🔄 *Creating your token with metadata...* This may take 60-90 seconds.', { parse_mode: 'Markdown' });
 
             const tokenInfo = await tokenManager.createToken(
                 session.tokenData.name,
                 session.tokenData.symbol,
                 session.tokenData.supply,
+                session.tokenData.description,
+                session.tokenData.imageUrl,
                 userId
             );
 
@@ -1328,12 +1330,33 @@ Ready to create your token with metadata?
             
             bot.sendMessage(chatId, tokenMessage, { 
                 parse_mode: 'Markdown',
-                disable_web_page_preview: false,
+                disable_web_page_preview: false
+            });
+
+            // Enhanced workflow - offer next steps
+            const nextStepsMessage = `
+🎉 *Token Created Successfully!*
+
+What would you like to do next?
+
+1️⃣ **Create Pool** - Set up Raydium liquidity pool
+2️⃣ **Seed Wallets** - Distribute tokens for trading
+3️⃣ **Start Trading** - Begin automated operations
+
+Choose your next step:
+            `;
+
+            bot.sendMessage(chatId, nextStepsMessage, {
+                parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [
                         [
                             { text: '🏊 Create Pool', callback_data: `create_pool_${tokenInfo.mintAddress}` },
-                            { text: '📊 Bot Status', callback_data: 'show_status' }
+                            { text: '🌱 Seed Wallets', callback_data: `seed_token_${tokenInfo.mintAddress}` }
+                        ],
+                        [
+                            { text: '📊 Bot Status', callback_data: 'show_status' },
+                            { text: '💰 Check Wallets', callback_data: 'show_wallets' }
                         ]
                     ]
                 }
