@@ -789,7 +789,7 @@ async function handleTokenCreationInput(userId, chatId, text, session) {
     try {
         switch (session.step) {
             case 'waiting_for_name':
-                const nameErrors = tokenManager.validateTokenParams(text, 'TEMP', 1000000);
+                const nameErrors = tokenManager.validateTokenParams(text, 'TEMP', 1000000, '', '');
                 const nameSpecificErrors = nameErrors.filter(err => err.includes('name'));
                 
                 if (nameSpecificErrors.length > 0) {
@@ -803,7 +803,7 @@ async function handleTokenCreationInput(userId, chatId, text, session) {
                 bot.sendMessage(chatId, `
 ✅ Token Name: *${text.trim()}*
 
-*Step 2/3:* Please enter your token symbol/ticker
+*Step 2/5:* Please enter your token symbol/ticker
 (Example: "DOGE", "MOON", "PEPE")
 
 💡 *Tips:*
@@ -822,7 +822,7 @@ async function handleTokenCreationInput(userId, chatId, text, session) {
                 break;
 
             case 'waiting_for_symbol':
-                const symbolErrors = tokenManager.validateTokenParams('Test', text, 1000000);
+                const symbolErrors = tokenManager.validateTokenParams('Test', text, 1000000, '', '');
                 const symbolSpecificErrors = symbolErrors.filter(err => err.includes('symbol'));
                 
                 if (symbolSpecificErrors.length > 0) {
@@ -836,7 +836,7 @@ async function handleTokenCreationInput(userId, chatId, text, session) {
                 bot.sendMessage(chatId, `
 ✅ Token Symbol: *${text.trim().toUpperCase()}*
 
-*Step 3/3:* Please enter the total supply
+*Step 3/5:* Please enter the total supply
 (Example: "1000000", "100000000")
 
 💡 *Tips:*
@@ -856,7 +856,7 @@ async function handleTokenCreationInput(userId, chatId, text, session) {
 
             case 'waiting_for_supply':
                 const supply = parseFloat(text.trim());
-                const supplyErrors = tokenManager.validateTokenParams('Test', 'TEST', supply);
+                const supplyErrors = tokenManager.validateTokenParams('Test', 'TEST', supply, '', '');
                 const supplySpecificErrors = supplyErrors.filter(err => err.includes('supply'));
                 
                 if (supplySpecificErrors.length > 0) {
@@ -865,18 +865,102 @@ async function handleTokenCreationInput(userId, chatId, text, session) {
                 }
 
                 session.tokenData.supply = supply;
+                session.step = 'waiting_for_description';
                 
-                // Show confirmation
+                bot.sendMessage(chatId, `
+✅ Total Supply: *${supply.toLocaleString()} ${session.tokenData.symbol}*
+
+*Step 4/5:* Please enter your token description
+(Example: "The ultimate meme coin for dog lovers!")
+
+💡 *Tips:*
+- Describe your token's purpose or story
+- Max 200 characters
+- This will be stored as metadata
+- Can be left empty (send "skip")
+                `, { 
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: '⏭️ Skip Description', callback_data: 'skip_description' },
+                                { text: '❌ Cancel', callback_data: 'cancel_launch' }
+                            ]
+                        ]
+                    }
+                });
+                break;
+
+            case 'waiting_for_description':
+                let description = '';
+                if (text.trim().toLowerCase() !== 'skip') {
+                    const descErrors = tokenManager.validateTokenParams('Test', 'TEST', 1000000, text, '');
+                    const descSpecificErrors = descErrors.filter(err => err.includes('Description'));
+                    
+                    if (descSpecificErrors.length > 0) {
+                        bot.sendMessage(chatId, `❌ ${descSpecificErrors.join('\n')}\n\nPlease try again or send "skip":`);
+                        return;
+                    }
+                    description = text.trim();
+                }
+
+                session.tokenData.description = description;
+                session.step = 'waiting_for_image';
+                
+                bot.sendMessage(chatId, `
+${description ? `✅ Description: *${description}*` : '⏭️ Description: *Skipped*'}
+
+*Step 5/5:* Please enter your token image URL (optional)
+(Example: "https://example.com/token-image.png")
+
+💡 *Tips:*
+- Must be a valid HTTP/HTTPS URL
+- PNG, JPG, or GIF format recommended
+- Will be stored as metadata
+- Send "skip" to proceed without image
+                `, { 
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: '⏭️ Skip Image', callback_data: 'skip_image' },
+                                { text: '❌ Cancel', callback_data: 'cancel_launch' }
+                            ]
+                        ]
+                    }
+                });
+                break;
+
+            case 'waiting_for_image':
+                let imageUrl = '';
+                if (text.trim().toLowerCase() !== 'skip') {
+                    const imageErrors = tokenManager.validateTokenParams('Test', 'TEST', 1000000, '', text);
+                    const imageSpecificErrors = imageErrors.filter(err => err.includes('Image URL'));
+                    
+                    if (imageSpecificErrors.length > 0) {
+                        bot.sendMessage(chatId, `❌ ${imageSpecificErrors.join('\n')}\n\nPlease try again or send "skip":`);
+                        return;
+                    }
+                    imageUrl = text.trim();
+                }
+
+                session.tokenData.imageUrl = imageUrl;
+                
+                // Show final confirmation
                 const confirmMessage = `
 🎯 *Confirm Token Creation*
 
 📛 *Name:* ${session.tokenData.name}
 🏷️ *Symbol:* ${session.tokenData.symbol}
-🪙 *Total Supply:* ${supply.toLocaleString()} ${session.tokenData.symbol}
+🪙 *Total Supply:* ${session.tokenData.supply.toLocaleString()} ${session.tokenData.symbol}
+📝 *Description:* ${session.tokenData.description || 'None'}
+🖼️ *Image:* ${session.tokenData.imageUrl || 'None'}
+
 💰 *Mint to:* Wallet 1
 🌐 *Network:* Solana Devnet
+📝 *Metadata:* Will be applied using Metaplex standard
 
-Ready to create your token?
+Ready to create your token with metadata?
                 `;
 
                 bot.sendMessage(chatId, confirmMessage, {
