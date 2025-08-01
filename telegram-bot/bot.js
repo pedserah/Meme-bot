@@ -1074,6 +1074,9 @@ Choose a wallet to request 1 SOL airdrop:
     } else if (data === 'launch_token') {
         startTokenCreation(chatId, userId);
         bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'seed_wallets') {
+        seedWalletsCommand(chatId);
+        bot.answerCallbackQuery(callbackQuery.id);
     } else if (data === 'create_pool') {
         createPoolCommand(chatId);
         bot.answerCallbackQuery(callbackQuery.id);
