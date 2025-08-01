@@ -70,8 +70,8 @@ Available Commands:
                     { text: '🚀 Launch Coin', callback_data: 'launch_token' }
                 ],
                 [
-                    { text: '🏊 Create Pool', callback_data: 'create_pool' },
-                    { text: '📈 Start Trading', callback_data: 'start_trading' }
+                    { text: '🌱 Seed Wallets', callback_data: 'seed_wallets' },
+                    { text: '🏊 Create Pool', callback_data: 'create_pool' }
                 ],
                 [
                     { text: '⏸️ Stop Trading', callback_data: 'stop_trading' },
