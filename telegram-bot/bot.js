@@ -96,7 +96,7 @@ bot.onText(/\/help/, (msg) => {
 
 *Step 2: Wallet Integration* ✅
 - /wallets - View all wallet balances
-- /airdrop [1-5] - Request devnet SOL for testing
+- /airdrop \\[1-5\\] - Request devnet SOL for testing
 
 *Step 3: Token Launch* ✅
 - /launch - Create new SPL token
