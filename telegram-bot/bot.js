@@ -189,7 +189,7 @@ async function showStatus(chatId) {
         });
     }
     
-    bot.sendMessage(chatId, statusMessage, { parse_mode: 'Markdown' });
+    bot.sendMessage(chatId, statusMessage, { parse_mode: 'HTML' });
 }
 
 // Seed Wallets Command
