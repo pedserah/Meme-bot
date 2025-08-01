@@ -145,7 +145,7 @@ async function showStatus(chatId) {
     }
     
     let statusMessage = `
-📊 *Enhanced Bot Status*
+📊 <b>Enhanced Bot Status</b>
 
 🤖 Bot: Online ✅
 🌐 Network: ${process.env.SOLANA_NETWORK || 'devnet'} ✅
@@ -155,37 +155,37 @@ async function showStatus(chatId) {
 📈 Trading: ${tradingInfo}
 ⚡ Mode: Real DEX Trading (Step 6)
 
-*Current Step:* Step 6 Complete - Enhanced metadata flow
-*Features:* Token metadata, rich launch workflow, enhanced status
+<b>Current Step:</b> Step 6 Complete - Enhanced metadata flow
+<b>Features:</b> Token metadata, rich launch workflow, enhanced status
     `;
 
     if (createdTokens.length > 0) {
-        statusMessage += `\n\n🪙 *Created Tokens:*\n`;
+        statusMessage += `\n\n🪙 <b>Created Tokens:</b>\n`;
         
         createdTokens.forEach((token, index) => {
             const hasPool = raydiumManager.hasPool(token.mintAddress);
             const poolStatus = hasPool ? '🏊 Pool Created' : '❌ No Pool';
             
-            statusMessage += `\n${index + 1}\\. *${token.name}* (${token.symbol})\n`;
-            statusMessage += `   📍 Mint: \`${token.mintAddress.substring(0, 8)}\\.\\.\\.\`\n`;
+            statusMessage += `\n${index + 1}. <b>${token.name}</b> (${token.symbol})\n`;
+            statusMessage += `   📍 Mint: <code>${token.mintAddress.substring(0, 8)}...</code>\n`;
             statusMessage += `   📝 Description: ${token.description || 'None'}\n`;
             statusMessage += `   🖼️ Image: ${token.imageUrl ? 'Yes' : 'No'}\n`;
             statusMessage += `   ${poolStatus}\n`;
             
             if (tradingStatus.isTrading && tradingStatus.currentToken === token.mintAddress) {
-                statusMessage += `   📈 *Currently Trading*\n`;
+                statusMessage += `   📈 <b>Currently Trading</b>\n`;
             }
         });
     }
 
     if (createdPools.length > 0 && createdTokens.length > 0) {
-        statusMessage += `\n\n🏊 *Pool Details:*\n`;
+        statusMessage += `\n\n🏊 <b>Pool Details:</b>\n`;
         
         createdPools.forEach((pool, index) => {
             const tokenInfo = tokenManager.getToken(pool.tokenMint);
-            statusMessage += `\n${index + 1}\\. *${tokenInfo ? tokenInfo.name : 'Unknown'}* Pool\n`;
+            statusMessage += `\n${index + 1}. <b>${tokenInfo ? tokenInfo.name : 'Unknown'}</b> Pool\n`;
             statusMessage += `   💰 Liquidity: ${pool.solAmount} SOL + ${pool.liquidityAmount} tokens\n`;
-            statusMessage += `   📍 Pool ID: \`${pool.poolId.substring(0, 8)}\\.\\.\\.\`\n`;
+            statusMessage += `   📍 Pool ID: <code>${pool.poolId.substring(0, 8)}...</code>\n`;
         });
     }
     
