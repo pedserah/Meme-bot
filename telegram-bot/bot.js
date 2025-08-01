@@ -1085,6 +1085,13 @@ Choose a wallet to request 1 SOL airdrop:
     } else if (data === 'rugpull' || data === 'force_rugpull') {
         realRugpullCommand(chatId);
         bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data.startsWith('seed_token_')) {
+        const tokenMint = data.replace('seed_token_', '');
+        await seedWalletsForToken(chatId, tokenMint);
+        bot.answerCallbackQuery(callbackQuery.id);
+    } else if (data === 'cancel_seed') {
+        bot.sendMessage(chatId, '❌ Wallet seeding cancelled.');
+        bot.answerCallbackQuery(callbackQuery.id);
     } else if (data.startsWith('create_pool_')) {
         const tokenMint = data.replace('create_pool_', '');
         await createPoolForToken(chatId, tokenMint);
